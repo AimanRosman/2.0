@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cute Photo Booth</title>
+    <title>Gothic Photo Booth</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: "Gothic", "Crimson Text", serif;
         }
 
         body {
-            background-color: #fdf2f8;
+            background-color: #1a1a1a;
             min-height: 100vh;
             padding: 20px;
+            color: #ffffff;
         }
 
         .container {
@@ -28,19 +29,25 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
         }
 
         .title {
-            color: #db2777;
-            font-size: 24px;
+            color: #c41e3a;
+            font-size: 28px;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .camera-container {
             position: relative;
+            width: 100%;
             aspect-ratio: 4/3;
             background: black;
-            border-radius: 12px;
+            border: 3px solid #333;
+            border-radius: 4px;
             overflow: hidden;
             margin-bottom: 20px;
         }
@@ -60,62 +67,56 @@
         }
 
         .button {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 2px solid #f9a8d4;
-            background: white;
-            color: #db2777;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: 2px solid #c41e3a;
+            background: #1a1a1a;
+            color: #c41e3a;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .button:hover {
-            background: #fdf2f8;
+            background: #c41e3a;
+            color: #1a1a1a;
         }
 
         .button.active {
-            background: #f9a8d4;
-            color: white;
-        }
-
-        .button.primary {
-            background: #db2777;
-            color: white;
-            border-color: #db2777;
-        }
-
-        .button.primary:hover {
-            background: #be185d;
+            background: #c41e3a;
+            color: #1a1a1a;
         }
 
         .preview-strip {
             width: 300px;
             margin: 0 auto;
-            background: white;
+            background: #333;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 4px;
             display: none;
         }
 
         .preview-strip img {
             width: 100%;
             margin-bottom: 10px;
-            border-radius: 4px;
+            border: 2px solid #c41e3a;
         }
 
-        .capturing-overlay {
+        .countdown-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 24px;
+            color: #c41e3a;
+            font-size: 72px;
+            font-weight: bold;
             display: none;
         }
 
@@ -126,46 +127,52 @@
         }
 
         .email-input {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 2px solid #f9a8d4;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: 2px solid #c41e3a;
+            background: #333;
+            color: #ffffff;
             width: 100%;
             max-width: 300px;
             margin-bottom: 10px;
+        }
+
+        .email-input::placeholder {
+            color: #666;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">Photo Booth</h1>
-            <button class="button" onclick="resetAll()">Home</button>
+            <h1 class="title">Gothic Photo Booth</h1>
+            <button class="button" onclick="resetAll()">Reset</button>
         </div>
 
         <div class="camera-container">
             <video id="video" autoplay playsinline></video>
-            <div class="capturing-overlay" id="capturing-overlay">Capturing...</div>
+            <div class="countdown-overlay" id="countdown-overlay"></div>
         </div>
 
         <div class="button-container" id="filters">
             <button class="button active" onclick="setFilter('none')">No Filter</button>
             <button class="button" onclick="setFilter('grayscale(1)')">Grayscale</button>
-            <button class="button" onclick="setFilter('sepia(1)')">Sepia</button>
-            <button class="button" onclick="setFilter('contrast(1.2) sepia(0.3)')">Vintage</button>
-            <button class="button" onclick="setFilter('brightness(1.1) contrast(0.9)')">Soft</button>
+            <button class="button" onclick="setFilter('contrast(1.4) brightness(0.8)')">Dark</button>
+            <button class="button" onclick="setFilter('contrast(1.2) sepia(0.3) brightness(0.7)')">Vintage</button>
+            <button class="button" onclick="setFilter('blur(1px) contrast(1.2) brightness(0.8)')">Ethereal</button>
         </div>
 
         <div class="button-container">
-            <button class="button primary" id="startButton" onclick="startCapture()">Start Capture :)</button>
-            <button class="button primary" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photo Strip</button>
-            <button class="button primary" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">Take New Photos</button>
+            <button class="button" id="startButton" onclick="startCapture()">Begin Ritual</button>
+            <button class="button" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photos</button>
+            <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Ritual</button>
         </div>
 
         <div class="preview-strip" id="preview-strip"></div>
 
         <div class="email-form" id="email-form">
-            <input type="email" class="email-input" placeholder="Enter your email">
-            <button class="button primary" onclick="sendEmail()">Send to Email</button>
+            <input type="email" class="email-input" placeholder="Enter your email" id="email-input">
+            <button class="button" onclick="sendEmail()">Send to Email</button>
         </div>
     </div>
 
@@ -181,7 +188,13 @@
 
         async function initCamera() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: {
+                        aspectRatio: 4/3,
+                        width: { ideal: 1280 },
+                        height: { ideal: 960 }
+                    } 
+                });
                 video.srcObject = stream;
             } catch (err) {
                 console.error('Error accessing camera:', err);
@@ -200,31 +213,48 @@
         const filterNames = {
             'none': 'No Filter',
             'grayscale(1)': 'Grayscale',
-            'sepia(1)': 'Sepia',
-            'contrast(1.2) sepia(0.3)': 'Vintage',
-            'brightness(1.1) contrast(0.9)': 'Soft'
+            'contrast(1.4) brightness(0.8)': 'Dark',
+            'contrast(1.2) sepia(0.3) brightness(0.7)': 'Vintage',
+            'blur(1px) contrast(1.2) brightness(0.8)': 'Ethereal'
         };
+
+        async function countdown() {
+            const overlay = document.getElementById('countdown-overlay');
+            overlay.style.display = 'flex';
+            
+            for (let i = 3; i > 0; i--) {
+                overlay.textContent = i;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            overlay.textContent = 'SNAP';
+            await new Promise(resolve => setTimeout(resolve, 200));
+            overlay.style.display = 'none';
+        }
 
         async function startCapture() {
             photos = [];
-            document.getElementById('capturing-overlay').style.display = 'flex';
             document.getElementById('startButton').style.display = 'none';
             
             for (let i = 0; i < 4; i++) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await countdown();
                 capturePhoto();
-                await new Promise(resolve => setTimeout(resolve, 500));
+                if (i < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
 
-            document.getElementById('capturing-overlay').style.display = 'none';
             document.getElementById('downloadButton').style.display = 'inline-block';
             document.getElementById('newPhotosButton').style.display = 'inline-block';
             document.getElementById('email-form').style.display = 'block';
         }
 
         function capturePhoto() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            // Set canvas size to match video aspect ratio
+            const aspectRatio = video.videoWidth / video.videoHeight;
+            canvas.width = 800;  // Fixed width
+            canvas.height = Math.round(800 / aspectRatio);  // Maintain aspect ratio
+            
             ctx.filter = currentFilter;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const photo = canvas.toDataURL('image/png');
@@ -241,13 +271,13 @@
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
-            const photoWidth = 300;
-            const photoHeight = 225;
+            const photoWidth = 800;
+            const photoHeight = 600;
             
             stripCanvas.width = photoWidth + 40;
             stripCanvas.height = (photoHeight * 4) + 80;
             
-            stripCtx.fillStyle = 'white';
+            stripCtx.fillStyle = '#1a1a1a';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
             
             photos.forEach((photo, index) => {
@@ -261,9 +291,39 @@
 
         function downloadStrip() {
             const link = document.createElement('a');
-            link.download = 'photo-strip.png';
+            link.download = 'gothic-photo-strip.png';
             link.href = createPhotoStrip();
             link.click();
+        }
+
+        async function sendEmail() {
+            const email = document.getElementById('email-input').value;
+            if (!email) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            // Create form data with the photo strip
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('photoStrip', createPhotoStrip());
+
+            try {
+                // You'll need to set up a server endpoint to handle this request
+                const response = await fetch('/send-email', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('Photos sent successfully!');
+                } else {
+                    throw new Error('Failed to send email');
+                }
+            } catch (error) {
+                alert('Error sending email. Please try downloading the photos instead.');
+                console.error('Error:', error);
+            }
         }
 
         function resetPhotos() {
@@ -278,15 +338,6 @@
         function resetAll() {
             resetPhotos();
             setFilter('none');
-        }
-
-        function sendEmail() {
-            const email = document.querySelector('.email-input').value;
-            if (email) {
-                alert('Email feature would be implemented here!');
-            } else {
-                alert('Please enter a valid email address');
-            }
         }
 
         // Initialize camera when page loads
