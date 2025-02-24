@@ -45,15 +45,17 @@
             display: flex;
             gap: 20px;
             align-items: flex-start;
+            flex-direction: row; /* Ensure horizontal layout */
         }
 
         .camera-section {
-            flex: 1;
+            flex: 1; /* Takes up remaining space */
         }
 
         .preview-section {
-            width: 300px;
-            flex-shrink: 0;
+            width: 300px; /* Fixed width for the preview section */
+            flex-shrink: 0; /* Prevents shrinking */
+            margin-left: auto; /* Pushes the preview section to the right */
         }
 
         .camera-container {
@@ -159,11 +161,12 @@
 
         @media (max-width: 900px) {
             .main-content {
-                flex-direction: column;
+                flex-direction: column; /* Stack vertically on smaller screens */
             }
 
             .preview-section {
-                width: 100%;
+                width: 100%; /* Full width on smaller screens */
+                margin-left: 0; /* Reset margin */
             }
         }
     </style>
@@ -209,7 +212,6 @@
     </div>
 
     <canvas id="canvas" style="display: none;"></canvas>
-
 
     <script>
         let currentFilter = 'none';
