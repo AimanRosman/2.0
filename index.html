@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -39,6 +39,21 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 2px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .camera-section {
+            flex: 1;
+        }
+
+        .preview-section {
+            width: 300px;
+            flex-shrink: 0;
         }
 
         .camera-container {
@@ -90,8 +105,6 @@
         }
 
         .preview-strip {
-            width: 300px;
-            margin: 0 auto;
             background: #333;
             padding: 20px;
             border-radius: 4px;
@@ -102,6 +115,10 @@
             width: 100%;
             margin-bottom: 10px;
             border: 2px solid #c41e3a;
+        }
+
+        .preview-strip img:last-child {
+            margin-bottom: 0;
         }
 
         .countdown-overlay {
@@ -133,12 +150,21 @@
             background: #333;
             color: #ffffff;
             width: 100%;
-            max-width: 300px;
             margin-bottom: 10px;
         }
 
         .email-input::placeholder {
             color: #666;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .preview-section {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -149,30 +175,36 @@
             <button class="button" onclick="resetAll()">Reset</button>
         </div>
 
-        <div class="camera-container">
-            <video id="video" autoplay playsinline></video>
-            <div class="countdown-overlay" id="countdown-overlay"></div>
-        </div>
+        <div class="main-content">
+            <div class="camera-section">
+                <div class="camera-container">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="countdown-overlay" id="countdown-overlay"></div>
+                </div>
 
-        <div class="button-container" id="filters">
-            <button class="button active" onclick="setFilter('none')">No Filter</button>
-            <button class="button" onclick="setFilter('grayscale(1)')">Grayscale</button>
-            <button class="button" onclick="setFilter('contrast(1.4) brightness(0.8)')">Dark</button>
-            <button class="button" onclick="setFilter('contrast(1.2) sepia(0.3) brightness(0.7)')">Vintage</button>
-            <button class="button" onclick="setFilter('blur(1px) contrast(1.2) brightness(0.8)')">Ethereal</button>
-        </div>
+                <div class="button-container" id="filters">
+                    <button class="button active" onclick="setFilter('none')">No Filter</button>
+                    <button class="button" onclick="setFilter('grayscale(1)')">Grayscale</button>
+                    <button class="button" onclick="setFilter('contrast(1.4) brightness(0.8)')">Dark</button>
+                    <button class="button" onclick="setFilter('contrast(1.2) sepia(0.3) brightness(0.7)')">Vintage</button>
+                    <button class="button" onclick="setFilter('blur(1px) contrast(1.2) brightness(0.8)')">Ethereal</button>
+                </div>
 
-        <div class="button-container">
-            <button class="button" id="startButton" onclick="startCapture()">Begin Ritual</button>
-            <button class="button" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photos</button>
-            <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Ritual</button>
-        </div>
+                <div class="button-container">
+                    <button class="button" id="startButton" onclick="startCapture()">Begin Ritual</button>
+                    <button class="button" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photos</button>
+                    <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Ritual</button>
+                </div>
 
-        <div class="preview-strip" id="preview-strip"></div>
+                <div class="email-form" id="email-form">
+                    <input type="email" class="email-input" placeholder="Enter your email" id="email-input">
+                    <button class="button" onclick="sendEmail()">Send to Email</button>
+                </div>
+            </div>
 
-        <div class="email-form" id="email-form">
-            <input type="email" class="email-input" placeholder="Enter your email" id="email-input">
-            <button class="button" onclick="sendEmail()">Send to Email</button>
+            <div class="preview-section">
+                <div class="preview-strip" id="preview-strip"></div>
+            </div>
         </div>
     </div>
 
