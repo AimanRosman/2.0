@@ -107,21 +107,24 @@
         }
 
         .preview-strip {
-            background: #333;
+            background: red; /* Red background for the template */
             padding: 20px;
             border-radius: 4px;
             display: none;
-            height: 1390px; /* Fixed height for the preview strip */
+            height: 900px; /* Adjusted height to fit 4 pictures with padding */
             overflow-y: auto; /* Add scroll if content exceeds height */
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Space between pictures */
+            align-items: center; /* Center pictures horizontally */
         }
 
         .preview-strip img {
             width: 576px; /* 6 inches in pixels (6 * 96) */
             height: 192px; /* 2 inches in pixels (2 * 96) */
-            margin-bottom: 10px;
             border: 2px solid #c41e3a;
             object-fit: contain; /* Ensure the image fits without stretching */
-            background-color: red; /* Red background for each image */
+            background-color: white; /* White background for each image */
         }
 
         .countdown-overlay {
