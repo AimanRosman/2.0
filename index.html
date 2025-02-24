@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mika's Photo Booth</title>
+    <title>Gothic Photo Booth</title>
     <style>
         * {
             margin: 0;
@@ -45,17 +45,17 @@
             display: flex;
             gap: 20px;
             align-items: flex-start;
-            flex-direction: row; 
+            flex-direction: row;
         }
 
         .camera-section {
-            flex: 1; 
+            flex: 1;
         }
 
         .preview-section {
-            width: 300px; 
-            flex-shrink: 0; 
-            margin-left: auto; 
+            width: 520px; /* Adjusted width to fit 480px images + padding */
+            flex-shrink: 0;
+            margin-left: auto;
         }
 
         .camera-container {
@@ -111,16 +111,16 @@
             padding: 20px;
             border-radius: 4px;
             display: none;
+            height: 1390px; /* Fixed height for the preview strip */
+            overflow-y: auto; /* Add scroll if content exceeds height */
         }
 
         .preview-strip img {
-            width: 100%;
+            width: 480px; /* Fixed width for images */
+            height: auto; /* Maintain aspect ratio */
             margin-bottom: 10px;
             border: 2px solid #c41e3a;
-        }
-
-        .preview-strip img:last-child {
-            margin-bottom: 0;
+            object-fit: contain; /* Ensure the image fits without stretching */
         }
 
         .countdown-overlay {
@@ -161,12 +161,12 @@
 
         @media (max-width: 900px) {
             .main-content {
-                flex-direction: column; 
+                flex-direction: column;
             }
 
             .preview-section {
-                width: 100%; 
-                margin-left: 0; 
+                width: 100%;
+                margin-left: 0;
             }
         }
     </style>
@@ -174,7 +174,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">Mika's Photo Booth</h1>
+            <h1 class="title">Gothic Photo Booth</h1>
             <button class="button" onclick="resetAll()">Reset</button>
         </div>
 
@@ -194,14 +194,14 @@
                 </div>
 
                 <div class="button-container">
-                    <button class="button" id="startButton" onclick="startCapture()">Start</button>
+                    <button class="button" id="startButton" onclick="startCapture()">Begin Ritual</button>
                     <button class="button" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photos</button>
-                    <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">Again (YES PLEASE)</button>
+                    <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Ritual</button>
                 </div>
 
                 <div class="email-form" id="email-form">
                     <input type="email" class="email-input" placeholder="Enter your email" id="email-input">
-                    <button class="button" onclick="sendEmail()">Send to Me</button>
+                    <button class="button" onclick="sendEmail()">Send to Email</button>
                 </div>
             </div>
 
@@ -285,13 +285,16 @@
         }
 
         function capturePhoto() {
-            // Set canvas size to match video aspect ratio
-            const aspectRatio = video.videoWidth / video.videoHeight;
-            canvas.width = 800;  // Fixed width
-            canvas.height = Math.round(800 / aspectRatio);  // Maintain aspect ratio
-            
+            // Set canvas size to match the 4:3 aspect ratio
+            const aspectRatio = 4 / 3; // Fixed aspect ratio for the camera
+            canvas.width = 480; // Fixed width for images
+            canvas.height = Math.round(canvas.width / aspectRatio); // Maintain 4:3 aspect ratio
+
+            // Apply the current filter and draw the video frame onto the canvas
             ctx.filter = currentFilter;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas to a data URL and add it to the photos array
             const photo = canvas.toDataURL('image/png');
             photos.push(photo);
             updatePreview();
@@ -300,27 +303,32 @@
         function updatePreview() {
             const preview = document.getElementById('preview-strip');
             preview.style.display = 'block';
-            preview.innerHTML = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
+            preview.innerHTML = photos.map(photo => `
+                <img src="${photo}" alt="Photo" style="width: 480px; height: auto;">
+            `).join('');
         }
 
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
-            const photoWidth = 800;
-            const photoHeight = 600;
-            
-            stripCanvas.width = photoWidth + 40;
-            stripCanvas.height = (photoHeight * 4) + 80;
-            
+            const photoWidth = 480; // Fixed width for images
+            const photoHeight = Math.round(photoWidth / (4 / 3)); // Maintain 4:3 aspect ratio
+
+            // Set canvas size to fit all images vertically
+            stripCanvas.width = photoWidth + 40; // Add padding
+            stripCanvas.height = (photoHeight * 4) + 80; // 4 images with padding
+
+            // Fill the background
             stripCtx.fillStyle = '#1a1a1a';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
-            
+
+            // Draw each photo onto the strip
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
                 stripCtx.drawImage(img, 20, 20 + (index * (photoHeight + 20)), photoWidth, photoHeight);
             });
-            
+
             return stripCanvas.toDataURL('image/png');
         }
 
@@ -338,13 +346,11 @@
                 return;
             }
 
-            // Create form data with the photo strip
             const formData = new FormData();
             formData.append('email', email);
             formData.append('photoStrip', createPhotoStrip());
 
             try {
-                // You'll need to set up a server endpoint to handle this request
                 const response = await fetch('/send-email', {
                     method: 'POST',
                     body: formData
@@ -375,7 +381,6 @@
             setFilter('none');
         }
 
-        // Initialize camera when page loads
         initCamera();
     </script>
 </body>
