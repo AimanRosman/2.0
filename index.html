@@ -111,10 +111,13 @@
             padding: 20px;
             border-radius: 4px;
             display: none;
+            height: 1390px; 
+            overflow-y: auto; 
         }
 
         .preview-strip img {
-            width: 100%;
+            width: 480px; 
+            height: auto; 
             margin-bottom: 10px;
             border: 2px solid #c41e3a;
         }
@@ -298,16 +301,18 @@
         }
 
         function updatePreview() {
-            const preview = document.getElementById('preview-strip');
+           const preview = document.getElementById('preview-strip');
             preview.style.display = 'block';
-            preview.innerHTML = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
+            preview.innerHTML = photos.map(photo => `
+            <img src="${photo}" alt="Photo" style="width: 480px; height: auto;">
+            `).join('');
         }
 
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
-            const photoWidth = 800;
-            const photoHeight = 600;
+            const photoWidth = 480; 
+            const photoHeight = Math.round((photoWidth * 3) / 4);
             
             stripCanvas.width = photoWidth + 40;
             stripCanvas.height = (photoHeight * 4) + 80;
