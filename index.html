@@ -5,130 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gothic Photo Booth</title>
     <style>
-        /* General Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            box-sizing: border-box;
+            font-family: "Gothic", "Crimson Text", serif;
         }
+        
+        body {
+            background-color: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+        }
+        
         .container {
-            width: 90%;
             max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 0 auto;
         }
+        
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
             margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
         }
+        
         .title {
-            font-size: 2rem;
+            color: #c41e3a;
+            font-size: 28px;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        .button {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .button:hover {
-            background-color: #555;
-        }
-        .button.active {
-            background-color: #ff4500;
-        }
-
-        /* Camera Section */
-        .camera-section {
+        
+        .main-content {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
+            gap: 20px;
+            align-items: flex-start;
+            flex-direction: row; 
         }
+        
+        .camera-section {
+            flex: 1; 
+        }
+        
+        .preview-section {
+            width: 300px; 
+            flex-shrink: 0; 
+            margin-left: auto; 
+        }
+        
         .camera-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
             aspect-ratio: 4/3;
-            background-color: #000;
+            background: black;
+            border: 3px solid #333;
+            border-radius: 4px;
             overflow: hidden;
-            border: 2px solid #333;
-            border-radius: 10px;
+            margin-bottom: 20px;
         }
-        video {
+        
+        #video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transform: scaleX(-1);
         }
+        
+        .button-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .button {
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: 2px solid #c41e3a;
+            background: #1a1a1a;
+            color: #c41e3a;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .button:hover {
+            background: #c41e3a;
+            color: #1a1a1a;
+        }
+        
+        .button.active {
+            background: #c41e3a;
+            color: #1a1a1a;
+        }
+        
+        .preview-strip {
+            background: #333;
+            padding: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .preview-strip img {
+            width: 100%;
+            margin-bottom: 10px;
+            border: 2px solid #c41e3a;
+        }
+        
+        .preview-strip img:last-child {
+            margin-bottom: 0;
+        }
+        
         .countdown-overlay {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 3rem;
+            justify-content: center;
+            color: #c41e3a;
+            font-size: 72px;
             font-weight: bold;
             display: none;
         }
-        .button-container {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Preview Section */
-        .preview-section {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 800px;
-        }
-        .preview-strip {
-            display: none;
-            background-color: #1a1a1a;
-            padding: 10px;
-            border: 2px solid #333;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .preview-strip img {
-            width: 100%;
-            height: auto;
-            border: 2px solid #333;
-            border-radius: 5px;
-        }
-
-        /* Email Form */
+        
         .email-form {
+            display: none;
             margin-top: 20px;
-            display: flex;
-            gap: 10px;
+            text-align: center;
         }
+        
         .email-input {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: 2px solid #c41e3a;
+            background: #333;
+            color: #ffffff;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .email-input::placeholder {
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column; 
+            }
+        
+            .preview-section {
+                width: 100%; 
+                margin-left: 0; 
+            }
+        
+            .camera-container {
+                aspect-ratio: 3/4;
+            }
+        
+            .button {
+                padding: 15px 25px; 
+                font-size: 16px; 
+            }
+        
+            .title {
+                font-size: 24px;
+            }
+        
+            .preview-strip img {
+                width: 100%; 
+            }
         }
     </style>
 </head>
@@ -138,12 +195,14 @@
             <h1 class="title">Gothic Photo Booth</h1>
             <button class="button" onclick="resetAll()">Reset</button>
         </div>
+
         <div class="main-content">
             <div class="camera-section">
                 <div class="camera-container">
                     <video id="video" autoplay playsinline></video>
                     <div class="countdown-overlay" id="countdown-overlay"></div>
                 </div>
+
                 <div class="button-container" id="filters">
                     <button class="button active" onclick="setFilter('none')">No Filter</button>
                     <button class="button" onclick="setFilter('grayscale(1)')">Grayscale</button>
@@ -151,32 +210,28 @@
                     <button class="button" onclick="setFilter('contrast(1.2) sepia(0.3) brightness(0.7)')">Vintage</button>
                     <button class="button" onclick="setFilter('blur(1px) contrast(1.2) brightness(0.8)')">Ethereal</button>
                 </div>
+
                 <div class="button-container">
                     <button class="button" id="startButton" onclick="startCapture()">Begin Ritual</button>
                     <button class="button" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photos</button>
                     <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Ritual</button>
                 </div>
-                <div class="email-form" id="email-form" style="display: none;">
+
+                <div class="email-form" id="email-form">
                     <input type="email" class="email-input" placeholder="Enter your email" id="email-input">
                     <button class="button" onclick="sendEmail()">Send to Email</button>
                 </div>
             </div>
+
             <div class="preview-section">
                 <div class="preview-strip" id="preview-strip"></div>
             </div>
         </div>
     </div>
-    <canvas id="canvas" style="display: none;"></canvas>
-    <script>
-        // Check for landscape mode on mobile
-        function checkOrientation() {
-            if (window.innerHeight > window.innerWidth) {
-                alert("Please rotate your device to landscape mode for the best experience.");
-            }
-        }
-        window.addEventListener("load", checkOrientation);
-        window.addEventListener("orientationchange", checkOrientation);
 
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <script>
         let currentFilter = 'none';
         let photos = [];
         let stream = null;
@@ -186,12 +241,12 @@
 
         async function initCamera() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
+                stream = await navigator.mediaDevices.getUserMedia({ 
                     video: {
-                        aspectRatio: 4 / 3,
+                        aspectRatio: 4/3,
                         width: { ideal: 1280 },
                         height: { ideal: 960 }
-                    }
+                    } 
                 });
                 video.srcObject = stream;
             } catch (err) {
@@ -219,12 +274,12 @@
         async function countdown() {
             const overlay = document.getElementById('countdown-overlay');
             overlay.style.display = 'flex';
-
+            
             for (let i = 3; i > 0; i--) {
                 overlay.textContent = i;
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
-
+            
             overlay.textContent = 'SNAP';
             await new Promise(resolve => setTimeout(resolve, 200));
             overlay.style.display = 'none';
@@ -233,7 +288,7 @@
         async function startCapture() {
             photos = [];
             document.getElementById('startButton').style.display = 'none';
-
+            
             for (let i = 0; i < 4; i++) {
                 await countdown();
                 capturePhoto();
@@ -249,11 +304,12 @@
 
         function capturePhoto() {
             const aspectRatio = video.videoWidth / video.videoHeight;
-            canvas.width = 800;
-            canvas.height = Math.round(800 / aspectRatio);
+            canvas.width = 800; 
+            canvas.height = Math.round(800 / aspectRatio); 
+           
+            ctx.translate(canvas.width, 0); 
+            ctx.scale(-1, 1); 
 
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
             ctx.filter = currentFilter;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -275,25 +331,19 @@
             const stripCtx = stripCanvas.getContext('2d');
             const photoWidth = 800;
             const photoHeight = 600;
-
+            
             stripCanvas.width = photoWidth + 40;
             stripCanvas.height = (photoHeight * 4) + 80;
-
+            
             stripCtx.fillStyle = '#1a1a1a';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
-
+            
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
                 stripCtx.drawImage(img, 20, 20 + (index * (photoHeight + 20)), photoWidth, photoHeight);
             });
-
-            // Add text at the bottom
-            stripCtx.fillStyle = '#fff';
-            stripCtx.font = '20px Arial';
-            stripCtx.fillText('Picapica 02/24/2025 04:55 PM', 20, stripCanvas.height - 30);
-            stripCtx.fillText('© 2025 AW', stripCanvas.width - 150, stripCanvas.height - 30);
-
+            
             return stripCanvas.toDataURL('image/png');
         }
 
@@ -346,7 +396,6 @@
             setFilter('none');
         }
 
-        // Initialize camera when page loads
         initCamera();
     </script>
 </body>
