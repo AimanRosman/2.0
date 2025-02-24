@@ -53,7 +53,7 @@
         }
 
         .preview-section {
-            width: 520px; /* Adjusted width to fit 480px images + padding */
+            width: 620px; /* Adjusted width to fit 576px images + padding */
             flex-shrink: 0;
             margin-left: auto;
         }
@@ -116,11 +116,12 @@
         }
 
         .preview-strip img {
-            width: 480px; /* Fixed width for images */
-            height: auto; /* Maintain aspect ratio */
+            width: 576px; /* 6 inches in pixels (6 * 96) */
+            height: 192px; /* 2 inches in pixels (2 * 96) */
             margin-bottom: 10px;
             border: 2px solid #c41e3a;
             object-fit: contain; /* Ensure the image fits without stretching */
+            background-color: red; /* Red background for each image */
         }
 
         .countdown-overlay {
@@ -285,14 +286,35 @@
         }
 
         function capturePhoto() {
-            // Set canvas size to match the 4:3 aspect ratio
-            const aspectRatio = 4 / 3; // Fixed aspect ratio for the camera
-            canvas.width = 480; // Fixed width for images
-            canvas.height = Math.round(canvas.width / aspectRatio); // Maintain 4:3 aspect ratio
+            // Set canvas size to match the 6x2 inches dimensions (576x192 pixels)
+            const targetWidth = 576; // 6 inches in pixels
+            const targetHeight = 192; // 2 inches in pixels
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
 
-            // Apply the current filter and draw the video frame onto the canvas
+            // Calculate the aspect ratio of the video
+            const videoAspectRatio = video.videoWidth / video.videoHeight;
+            const targetAspectRatio = targetWidth / targetHeight;
+
+            let sourceX, sourceY, sourceWidth, sourceHeight;
+
+            if (videoAspectRatio > targetAspectRatio) {
+                // Video is wider than the target, crop the sides
+                sourceHeight = video.videoHeight;
+                sourceWidth = sourceHeight * targetAspectRatio;
+                sourceX = (video.videoWidth - sourceWidth) / 2;
+                sourceY = 0;
+            } else {
+                // Video is taller than the target, crop the top and bottom
+                sourceWidth = video.videoWidth;
+                sourceHeight = sourceWidth / targetAspectRatio;
+                sourceX = 0;
+                sourceY = (video.videoHeight - sourceHeight) / 2;
+            }
+
+            // Draw the video frame onto the canvas, cropping to fit the 6x2 dimensions
             ctx.filter = currentFilter;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
 
             // Convert the canvas to a data URL and add it to the photos array
             const photo = canvas.toDataURL('image/png');
@@ -304,29 +326,30 @@
             const preview = document.getElementById('preview-strip');
             preview.style.display = 'block';
             preview.innerHTML = photos.map(photo => `
-                <img src="${photo}" alt="Photo" style="width: 480px; height: auto;">
+                <img src="${photo}" alt="Photo" style="width: 576px; height: 192px;">
             `).join('');
         }
 
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
-            const photoWidth = 480; // Fixed width for images
-            const photoHeight = Math.round(photoWidth / (4 / 3)); // Maintain 4:3 aspect ratio
+            const photoWidth = 576; // 6 inches in pixels
+            const photoHeight = 192; // 2 inches in pixels
 
-            // Set canvas size to fit all images vertically
-            stripCanvas.width = photoWidth + 40; // Add padding
-            stripCanvas.height = (photoHeight * 4) + 80; // 4 images with padding
+            // Set canvas size to fit all images vertically with padding
+            const padding = 20;
+            stripCanvas.width = photoWidth + (padding * 2); // Add padding
+            stripCanvas.height = (photoHeight * 4) + (padding * 5); // 4 images with padding
 
-            // Fill the background
-            stripCtx.fillStyle = '#1a1a1a';
+            // Fill the background with red
+            stripCtx.fillStyle = 'red';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
             // Draw each photo onto the strip
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
-                stripCtx.drawImage(img, 20, 20 + (index * (photoHeight + 20)), photoWidth, photoHeight);
+                stripCtx.drawImage(img, padding, padding + (index * (photoHeight + padding)), photoWidth, photoHeight);
             });
 
             return stripCanvas.toDataURL('image/png');
