@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gothic Photo Booth</title>
+    <title>Mika's Photo Booth</title>
     <style>
         * {
             margin: 0;
@@ -185,7 +185,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">Gothic Photo Booth</h1>
+            <h1 class="title">Mika's Photo Booth</h1>
             <button class="button" onclick="resetAll()">Reset</button>
         </div>
 
@@ -252,12 +252,10 @@
             currentFilter = filter;
             video.style.filter = filter;
             
-            // Update active button
             document.querySelectorAll('#filters .button').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Find the button with the matching filter and make it active
             const filterNames = {
                 'none': 'No Filter',
                 'grayscale(1)': 'Grayscale',
@@ -307,9 +305,8 @@
         }
 
         function capturePhoto() {
-            // Set canvas size to maintain a consistent aspect ratio
-            canvas.width = 400;  // Fixed width
-            canvas.height = 300;  // Fixed height (4:3 aspect ratio)
+            canvas.width = 400;  
+            canvas.height = 300;  
             
             ctx.save();
             ctx.scale(-1, 1);
@@ -317,18 +314,15 @@
             
             ctx.filter = currentFilter;
             
-            // Calculate dimensions to maintain aspect ratio
             const videoAspect = video.videoWidth / video.videoHeight;
             const canvasAspect = canvas.width / canvas.height;
             
             let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
             
             if (videoAspect > canvasAspect) {
-                // Video is wider than canvas
                 sWidth = video.videoHeight * canvasAspect;
                 sx = (video.videoWidth - sWidth) / 2;
             } else if (videoAspect < canvasAspect) {
-                // Video is taller than canvas
                 sHeight = video.videoWidth / canvasAspect;
                 sy = (video.videoHeight - sHeight) / 2;
             }
@@ -349,10 +343,8 @@
             const dateString = now.toLocaleDateString('en-US');
             const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             
-            // Generate HTML for the photo strip
             let html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
             
-            // Add timestamp and copyright
             html += `<div class="timestamp">Gothic Photo Booth ${dateString} ${timeString}</div>`;
             html += `<div class="copyright">© ${now.getFullYear()} Gothic Booth</div>`;
             
@@ -370,37 +362,34 @@
             stripCanvas.width = photoWidth + (padding * 2);
             stripCanvas.height = (photoHeight * 4) + (padding * 5) + footerHeight;
             
-            // Fill with white background
-            stripCtx.fillStyle = '#ffffff';
+            stripCtx.fillStyle = '#3B3834';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
             
-            // Draw each photo
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
                 stripCtx.drawImage(img, padding, padding + (index * (photoHeight + padding)), photoWidth, photoHeight);
             });
             
-            // Add timestamp and copyright
             const now = new Date();
             const dateString = now.toLocaleDateString('en-US');
             const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             
-            stripCtx.fillStyle = '#000000';
+            stripCtx.fillStyle = '#FF3131';
             stripCtx.font = '16px Arial';
             stripCtx.textAlign = 'center';
-            stripCtx.fillText(`Gothic Photo Booth ${dateString} ${timeString}`, stripCanvas.width / 2, stripCanvas.height - 30);
+            stripCtx.fillText(`Mika's Photo Booth ${dateString} ${timeString}`, stripCanvas.width / 2, stripCanvas.height - 30);
             
             stripCtx.fillStyle = '#777777';
             stripCtx.font = '12px Arial';
-            stripCtx.fillText(`© ${now.getFullYear()} Gothic Booth`, stripCanvas.width / 2, stripCanvas.height - 10);
+            stripCtx.fillText(`© ${now.getFullYear()} Batman Sdn Bhd`, stripCanvas.width / 2, stripCanvas.height - 10);
             
             return stripCanvas.toDataURL('image/png');
         }
 
         function downloadStrip() {
             const link = document.createElement('a');
-            link.download = 'gothic-photo-strip.png';
+            link.download = 'miracles.png';
             link.href = createPhotoStrip();
             link.click();
         }
@@ -412,13 +401,11 @@
                 return;
             }
 
-            // Create form data with the photo strip
             const formData = new FormData();
             formData.append('email', email);
             formData.append('photoStrip', createPhotoStrip());
 
             try {
-                // You'll need to set up a server endpoint to handle this request
                 const response = await fetch('/send-email', {
                     method: 'POST',
                     body: formData
@@ -448,8 +435,7 @@
             resetPhotos();
             setFilter('none');
         }
-
-        // Initialize camera when page loads
+        
         initCamera();
     </script>
 </body>
