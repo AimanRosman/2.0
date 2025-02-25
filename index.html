@@ -243,9 +243,9 @@
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: {
-                        facingMode: "user",
+                        aspectRatio: 4/3,
                         width: { ideal: 1280 },
-                        height: { ideal: 720 }
+                        height: { ideal: 960 }
                     } 
                 });
                 video.srcObject = stream;
@@ -303,67 +303,50 @@
         }
 
         function capturePhoto() {
-            // Get the actual video dimensions to maintain proper aspect ratio
             const aspectRatio = video.videoWidth / video.videoHeight;
-            
-            // Set a fixed width and calculate height based on aspect ratio
-            canvas.width = 600; 
-            canvas.height = Math.round(600 / aspectRatio); 
+            canvas.width = 800; 
+            canvas.height = Math.round(800 / aspectRatio); 
            
-            // Mirror the image horizontally as in the original code
             ctx.translate(canvas.width, 0); 
             ctx.scale(-1, 1); 
-        
-            // Apply the selected filter and draw the image
+
             ctx.filter = currentFilter;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+
             const photo = canvas.toDataURL('image/png');
             photos.push(photo);
             updatePreview();
-        
-            // Reset transformation
+
             ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
-        
+
+        function updatePreview() {
+            const preview = document.getElementById('preview-strip');
+            preview.style.display = 'block';
+            preview.innerHTML = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
+        }
+
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
+            const photoWidth = 800;
+            const photoHeight = 600;
             
-            // For a portrait-oriented photo strip (like your example)
-            const margin = 20;
-            const photoCount = photos.length;
+            stripCanvas.width = photoWidth + 40;
+            stripCanvas.height = (photoHeight * 4) + 80;
             
-            // Get dimensions from the first photo to ensure consistency
-            const tempImg = new Image();
-            tempImg.src = photos[0];
-            
-            const photoWidth = 600;
-            const photoHeight = Math.round(600 / (tempImg.width / tempImg.height));
-            
-            // Set the strip dimensions with proper spacing
-            stripCanvas.width = photoWidth + (margin * 2);
-            stripCanvas.height = (photoHeight * photoCount) + (margin * (photoCount + 1));
-            
-            // Fill background
             stripCtx.fillStyle = '#1a1a1a';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
             
-            // Draw each photo with proper spacing
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
-                stripCtx.drawImage(
-                    img, 
-                    margin, 
-                    margin + (index * (photoHeight + margin)), 
-                    photoWidth, 
-                    photoHeight
-                );
+                stripCtx.drawImage(img, 20, 20 + (index * (photoHeight + 20)), photoWidth, photoHeight);
             });
             
             return stripCanvas.toDataURL('image/png');
         }
+
         function downloadStrip() {
             const link = document.createElement('a');
             link.download = 'gothic-photo-strip.png';
