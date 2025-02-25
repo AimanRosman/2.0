@@ -118,7 +118,7 @@
             width: 100%;
             margin-bottom: 10px;
             border: none;
-            background-color: #f0f0f0;
+            background-color: #3B3834;
         }
 
         .preview-strip img:last-of-type {
@@ -205,9 +205,9 @@
                 </div>
 
                 <div class="button-container">
-                    <button class="button" id="startButton" onclick="startCapture()">Begin Ritual</button>
+                    <button class="button" id="startButton" onclick="startCapture()">Start:P</button>
                     <button class="button" id="downloadButton" onclick="downloadStrip()" style="display: none;">Download Photos</button>
-                    <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Ritual</button>
+                    <button class="button" id="newPhotosButton" onclick="resetPhotos()" style="display: none;">New Photo</button>
                 </div>
 
                 <div class="email-form" id="email-form">
@@ -345,8 +345,8 @@
             
             let html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
             
-            html += `<div class="timestamp">Gothic Photo Booth ${dateString} ${timeString}</div>`;
-            html += `<div class="copyright">© ${now.getFullYear()} Gothic Booth</div>`;
+            html += `<div class="timestamp">Mika's Photo Booth ${dateString} ${timeString}</div>`;
+            html += `<div class="copyright">© ${now.getFullYear()} Batman Sdn Bhd</div>`;
             
             preview.innerHTML = html;
         }
