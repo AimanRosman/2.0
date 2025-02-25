@@ -179,6 +179,40 @@
             .preview-section {
                 width: 100%;
             }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+        
+            .preview-section {
+                width: 100%;
+            }
+            
+            .mobile-mode .camera-container {
+                aspect-ratio: 3/4;
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            
+            .mobile-mode .preview-strip img {
+                max-height: 70vh;
+                width: auto;
+                max-width: 100%;
+            }
+            
+            .button {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+        }
+        
+        /* Make sure the viewfinder fits properly on mobile */
+        .camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
         }
     </style>
 </head>
@@ -232,156 +266,208 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        async function initCamera() {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: {
-                        aspectRatio: 4/3,
-                        width: { ideal: 1280 },
-                        height: { ideal: 960 }
-                    } 
-                });
-                video.srcObject = stream;
-            } catch (err) {
-                console.error('Error accessing camera:', err);
-                alert('Unable to access camera. Please make sure you have granted camera permissions.');
-            }
-        }
+        // Add this function to detect mobile devices
+function isMobileDevice() {
+    return (window.innerWidth <= 768) || 
+           (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+}
 
-        function setFilter(filter) {
-            currentFilter = filter;
-            video.style.filter = filter;
-            
-            // Update active button
-            document.querySelectorAll('#filters .button').forEach(btn => {
-                btn.classList.remove('active');
+// Modify initCamera() to handle different orientations
+async function initCamera() {
+    try {
+        // Check if mobile and use portrait orientation
+        if (isMobileDevice()) {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: {
+                    aspectRatio: { ideal: 3/4 }, // Vertical orientation for mobile
+                    width: { ideal: 720 },
+                    height: { ideal: 960 }
+                } 
             });
-            
-            // Find the button with the matching filter and make it active
-            const filterNames = {
-                'none': 'No Filter',
-                'grayscale(1)': 'Grayscale',
-                'contrast(1.4) brightness(0.8)': 'Dark',
-                'contrast(1.2) sepia(0.3) brightness(0.7)': 'Vintage',
-                'blur(1px) contrast(1.2) brightness(0.8)': 'Ethereal'
-            };
-            
-            const buttons = document.querySelectorAll('#filters .button');
-            for (let btn of buttons) {
-                if (btn.textContent === filterNames[filter]) {
-                    btn.classList.add('active');
-                    break;
-                }
-            }
+        } else {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: {
+                    aspectRatio: { ideal: 4/3 }, // Landscape for desktop
+                    width: { ideal: 1280 },
+                    height: { ideal: 960 }
+                } 
+            });
         }
+        video.srcObject = stream;
+        
+        // Update UI based on device type
+        updateUIForDevice();
+    } catch (err) {
+        console.error('Error accessing camera:', err);
+        alert('Unable to access camera. Please make sure you have granted camera permissions.');
+    }
+}
 
-        async function countdown() {
-            const overlay = document.getElementById('countdown-overlay');
-            overlay.style.display = 'flex';
-            
-            for (let i = 3; i > 0; i--) {
-                overlay.textContent = i;
+// Add this function to handle UI changes
+function updateUIForDevice() {
+    const mobileMode = isMobileDevice();
+    const startButton = document.getElementById('startButton');
+    
+    if (mobileMode) {
+        // Update button text for mobile
+        startButton.textContent = "Take Photo";
+        
+        // Adjust camera container aspect ratio
+        document.querySelector('.camera-container').style.aspectRatio = '3/4';
+        
+        // Add a class to body for mobile-specific styling
+        document.body.classList.add('mobile-mode');
+    } else {
+        startButton.textContent = "Begin Ritual";
+        document.querySelector('.camera-container').style.aspectRatio = '4/3';
+        document.body.classList.remove('mobile-mode');
+    }
+}
+
+// Modify startCapture for different device types
+async function startCapture() {
+    photos = [];
+    document.getElementById('startButton').style.display = 'none';
+    
+    if (isMobileDevice()) {
+        // Mobile mode: take just one vertical photo
+        await countdown();
+        capturePhoto();
+    } else {
+        // Desktop mode: take 4 photos
+        for (let i = 0; i < 4; i++) {
+            await countdown();
+            capturePhoto();
+            if (i < 3) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
-            
-            overlay.textContent = 'SNAP';
-            await new Promise(resolve => setTimeout(resolve, 200));
-            overlay.style.display = 'none';
         }
+    }
 
-        async function startCapture() {
-            photos = [];
-            document.getElementById('startButton').style.display = 'none';
-            
-            for (let i = 0; i < 4; i++) {
-                await countdown();
-                capturePhoto();
-                if (i < 3) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
+    document.getElementById('downloadButton').style.display = 'inline-block';
+    document.getElementById('newPhotosButton').style.display = 'inline-block';
+    document.getElementById('email-form').style.display = 'block';
+}
 
-            document.getElementById('downloadButton').style.display = 'inline-block';
-            document.getElementById('newPhotosButton').style.display = 'inline-block';
-            document.getElementById('email-form').style.display = 'block';
-        }
+// Update capturePhoto to handle different orientations
+function capturePhoto() {
+    const mobileMode = isMobileDevice();
+    
+    if (mobileMode) {
+        // Mobile vertical mode (3:4)
+        canvas.width = 300;
+        canvas.height = 400;
+    } else {
+        // Desktop landscape mode (4:3)
+        canvas.width = 400;
+        canvas.height = 300;
+    }
+    
+    ctx.save();
+    
+    // Flip horizontally for selfie mode
+    ctx.scale(-1, 1);
+    ctx.translate(-canvas.width, 0);
+    
+    ctx.filter = currentFilter;
+    
+    // Calculate dimensions to maintain aspect ratio
+    const videoAspect = video.videoWidth / video.videoHeight;
+    const canvasAspect = canvas.width / canvas.height;
+    
+    let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
+    
+    if (videoAspect > canvasAspect) {
+        // Video is wider than canvas
+        sWidth = video.videoHeight * canvasAspect;
+        sx = (video.videoWidth - sWidth) / 2;
+    } else if (videoAspect < canvasAspect) {
+        // Video is taller than canvas
+        sHeight = video.videoWidth / canvasAspect;
+        sy = (video.videoHeight - sHeight) / 2;
+    }
+    
+    ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+    
+    ctx.restore();
+    const photo = canvas.toDataURL('image/png');
+    photos.push(photo);
+    updatePreview();
+}
 
-        function capturePhoto() {
-            // Set canvas size to maintain a consistent aspect ratio
-            canvas.width = 400;  // Fixed width
-            canvas.height = 300;  // Fixed height (4:3 aspect ratio)
-            
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.translate(-canvas.width, 0);
-            
-            ctx.filter = currentFilter;
-            
-            // Calculate dimensions to maintain aspect ratio
-            const videoAspect = video.videoWidth / video.videoHeight;
-            const canvasAspect = canvas.width / canvas.height;
-            
-            let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
-            
-            if (videoAspect > canvasAspect) {
-                // Video is wider than canvas
-                sWidth = video.videoHeight * canvasAspect;
-                sx = (video.videoWidth - sWidth) / 2;
-            } else if (videoAspect < canvasAspect) {
-                // Video is taller than canvas
-                sHeight = video.videoWidth / canvasAspect;
-                sy = (video.videoHeight - sHeight) / 2;
-            }
-            
-            ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-            
-            ctx.restore();
-            const photo = canvas.toDataURL('image/png');
-            photos.push(photo);
-            updatePreview();
-        }
+// Update the preview display for mobile
+function updatePreview() {
+    const preview = document.getElementById('preview-strip');
+    preview.style.display = 'block';
+    
+    const now = new Date();
+    const dateString = now.toLocaleDateString('en-US');
+    const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    // Generate HTML for the photo(s)
+    let html = '';
+    
+    if (isMobileDevice()) {
+        // Single photo for mobile
+        html = `<img src="${photos[0]}" alt="Photo" style="max-height: 70vh;">`;
+    } else {
+        // Strip of 4 photos for desktop
+        html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
+    }
+    
+    // Add timestamp and copyright
+    html += `<div class="timestamp">Gothic Photo Booth ${dateString} ${timeString}</div>`;
+    html += `<div class="copyright">© ${now.getFullYear()} Gothic Booth</div>`;
+    
+    preview.innerHTML = html;
+}
 
-        function updatePreview() {
-            const preview = document.getElementById('preview-strip');
-            preview.style.display = 'block';
-            
-            const now = new Date();
-            const dateString = now.toLocaleDateString('en-US');
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            // Generate HTML for the photo strip
-            let html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
-            
-            // Add timestamp and copyright
-            html += `<div class="timestamp">Gothic Photo Booth ${dateString} ${timeString}</div>`;
-            html += `<div class="copyright">© ${now.getFullYear()} Gothic Booth</div>`;
-            
-            preview.innerHTML = html;
-        }
-
-        function createPhotoStrip() {
-            const stripCanvas = document.createElement('canvas');
-            const stripCtx = stripCanvas.getContext('2d');
-            const photoWidth = 400;
-            const photoHeight = 300;
-            const padding = 20;
-            const footerHeight = 60;
-            
-            stripCanvas.width = photoWidth + (padding * 2);
-            stripCanvas.height = (photoHeight * 4) + (padding * 5) + footerHeight;
-            
-            // Fill with white background
-            stripCtx.fillStyle = '#ffffff';
-            stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
-            
-            // Draw each photo
-            photos.forEach((photo, index) => {
-                const img = new Image();
-                img.src = photo;
-                stripCtx.drawImage(img, padding, padding + (index * (photoHeight + padding)), photoWidth, photoHeight);
-            });
-            
-            // Add timestamp and copyright
+// Update downloadStrip function to handle both modes
+function createPhotoStrip() {
+    const stripCanvas = document.createElement('canvas');
+    const stripCtx = stripCanvas.getContext('2d');
+    
+    if (isMobileDevice()) {
+        // Single photo mode for mobile
+        const photoWidth = 300;
+        const photoHeight = 400;
+        const padding = 20;
+        const footerHeight = 60;
+        
+        stripCanvas.width = photoWidth + (padding * 2);
+        stripCanvas.height = photoHeight + (padding * 2) + footerHeight;
+        
+        // Fill with white background
+        stripCtx.fillStyle = '#ffffff';
+        stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
+        
+        // Draw the single photo
+        const img = new Image();
+        img.src = photos[0];
+        stripCtx.drawImage(img, padding, padding, photoWidth, photoHeight);
+    } else {
+        // Photo strip for desktop
+        const photoWidth = 400;
+        const photoHeight = 300;
+        const padding = 20;
+        const footerHeight = 60;
+        
+        stripCanvas.width = photoWidth + (padding * 2);
+        stripCanvas.height = (photoHeight * 4) + (padding * 5) + footerHeight;
+        
+        // Fill with white background
+        stripCtx.fillStyle = '#ffffff';
+        stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
+        
+        // Draw each photo
+        photos.forEach((photo, index) => {
+            const img = new Image();
+            img.src = photo;
+            stripCtx.drawImage(img, padding, padding + (index * (photoHeight + padding)), photoWidth, photoHeight);
+        });
+    }
+    
+    // Add timestamp and copyright
             const now = new Date();
             const dateString = now.toLocaleDateString('en-US');
             const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
