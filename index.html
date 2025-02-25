@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: "Gothic", "Crimson Text", serif;
         }
 
         body {
@@ -71,7 +71,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1); /* Mirror the camera */
+            transform: scaleX(-1);
         }
 
         .button-container {
@@ -107,31 +107,32 @@
 
         .preview-strip {
             background: white;
-            border-radius: 0;
+            border-radius: 4px;
             display: none;
-            padding: 0;
+            padding: 10px;
             color: #000;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .preview-strip img {
             width: 100%;
-            margin-bottom: 0;
+            margin-bottom: 10px;
             border: none;
-            display: block;
+            background-color: #f0f0f0;
+        }
+
+        .preview-strip img:last-of-type {
+            margin-bottom: 15px;
         }
 
         .preview-strip .timestamp {
-            font-size: 12px;
-            padding: 8px 0;
-            font-weight: normal;
+            font-size: 14px;
+            margin-bottom: 5px;
         }
 
         .preview-strip .copyright {
-            font-size: 10px;
+            font-size: 12px;
             color: #777;
-            padding-bottom: 8px;
         }
 
         .countdown-overlay {
@@ -177,8 +178,6 @@
 
             .preview-section {
                 width: 100%;
-                max-width: 400px;
-                margin: 0 auto;
             }
         }
     </style>
@@ -232,9 +231,6 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        
-        // App name for the footer
-        const appName = "Picapica";
 
         async function initCamera() {
             try {
@@ -311,22 +307,16 @@
         }
 
         function capturePhoto() {
-            // Set canvas size to match video dimensions
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            // Mirror the image during capture to match the mirrored video display
+            // Set canvas size to maintain a consistent aspect ratio
+            canvas.width = 400;  // Fixed width
+            canvas.height = 300;  // Fixed height (4:3 aspect ratio)
+
             ctx.save();
             ctx.scale(-1, 1);
             ctx.translate(-canvas.width, 0);
             
-            // Apply filter
             ctx.filter = currentFilter;
-            
-            // Draw video to canvas
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            ctx.restore();
-            
             const photo = canvas.toDataURL('image/png');
             photos.push(photo);
             updatePreview();
@@ -337,15 +327,15 @@
             preview.style.display = 'block';
             
             const now = new Date();
-            const dateString = now.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'});
-            const timeString = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true}).replace(' ', '');
+            const dateString = now.toLocaleDateString('en-US');
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             
             // Generate HTML for the photo strip
             let html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
             
-            // Add timestamp and copyright in format matching the example
-            html += `<div class="timestamp">${appName} ${dateString} ${timeString}</div>`;
-            html += `<div class="copyright">© ${now.getFullYear()} AW</div>`;
+            // Add timestamp and copyright
+            html += `<div class="timestamp">Gothic Photo Booth ${dateString} ${timeString}</div>`;
+            html += `<div class="copyright">© ${now.getFullYear()} Gothic Booth</div>`;
             
             preview.innerHTML = html;
         }
@@ -353,14 +343,13 @@
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
+            const photoWidth = 400;
+            const photoHeight = 300;
+            const padding = 20;
+            const footerHeight = 60;
             
-            // Calculate dimensions based on actual photos
-            const photoWidth = 300;
-            const photoHeight = 225; // 4:3 aspect ratio
-            const footerHeight = 50;
-            
-            stripCanvas.width = photoWidth;
-            stripCanvas.height = (photoHeight * 4) + footerHeight;
+            stripCanvas.width = photoWidth + (padding * 2);
+            stripCanvas.height = (photoHeight * 4) + (padding * 5) + footerHeight;
             
             // Fill with white background
             stripCtx.fillStyle = '#ffffff';
@@ -370,29 +359,29 @@
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
-                stripCtx.drawImage(img, 0, index * photoHeight, photoWidth, photoHeight);
+                stripCtx.drawImage(img, padding, padding + (index * (photoHeight + padding)), photoWidth, photoHeight);
             });
             
             // Add timestamp and copyright
             const now = new Date();
-            const dateString = now.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit', year: 'numeric'});
-            const timeString = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true}).replace(' ', '');
+            const dateString = now.toLocaleDateString('en-US');
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             
             stripCtx.fillStyle = '#000000';
-            stripCtx.font = '12px Arial';
+            stripCtx.font = '16px Arial';
             stripCtx.textAlign = 'center';
-            stripCtx.fillText(`${appName} ${dateString} ${timeString}`, stripCanvas.width / 2, (photoHeight * 4) + 25);
+            stripCtx.fillText(`Gothic Photo Booth ${dateString} ${timeString}`, stripCanvas.width / 2, stripCanvas.height - 30);
             
             stripCtx.fillStyle = '#777777';
-            stripCtx.font = '10px Arial';
-            stripCtx.fillText(`© ${now.getFullYear()} AW`, stripCanvas.width / 2, (photoHeight * 4) + 40);
+            stripCtx.font = '12px Arial';
+            stripCtx.fillText(`© ${now.getFullYear()} Gothic Booth`, stripCanvas.width / 2, stripCanvas.height - 10);
             
             return stripCanvas.toDataURL('image/png');
         }
 
         function downloadStrip() {
             const link = document.createElement('a');
-            link.download = 'photo-strip.png';
+            link.download = 'gothic-photo-strip.png';
             link.href = createPhotoStrip();
             link.click();
         }
