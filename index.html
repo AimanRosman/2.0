@@ -234,7 +234,7 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-
+        
         async function initCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
@@ -250,7 +250,7 @@
                 alert('Unable to access camera. Please make sure you have granted camera permissions.');
             }
         }
-
+        
         function setFilter(filter) {
             currentFilter = filter;
             video.style.filter = filter;
@@ -275,7 +275,7 @@
                 }
             }
         }
-
+        
         async function countdown() {
             const overlay = document.getElementById('countdown-overlay');
             overlay.style.display = 'flex';
@@ -289,7 +289,7 @@
             await new Promise(resolve => setTimeout(resolve, 200));
             overlay.style.display = 'none';
         }
-
+        
         async function startCapture() {
             photos = [];
             document.getElementById('startButton').style.display = 'none';
@@ -301,12 +301,12 @@
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
-
+        
             document.getElementById('downloadButton').style.display = 'inline-block';
             document.getElementById('newPhotosButton').style.display = 'inline-block';
             document.getElementById('email-form').style.display = 'block';
         }
-
+        
         function capturePhoto() {
             canvas.width = 400;  
             canvas.height = 300;  
@@ -315,7 +315,6 @@
             ctx.scale(-1, 1);
             ctx.translate(-canvas.width, 0);
             
-            ctx.filter = currentFilter;
             
             const videoAspect = video.videoWidth / video.videoHeight;
             const canvasAspect = canvas.width / canvas.height;
@@ -331,13 +330,30 @@
             }
             
             ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-            
             ctx.restore();
+            
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (currentFilter !== 'none') {
+                ctx.filter = currentFilter;
+            }
+            
+            ctx.drawImage(tempCanvas, 0, 0);
+            
+            ctx.filter = 'none';
+            
             const photo = canvas.toDataURL('image/png');
             photos.push(photo);
             updatePreview();
         }
-
+        
         function updatePreview() {
             const preview = document.getElementById('preview-strip');
             preview.style.display = 'block';
@@ -353,7 +369,7 @@
             
             preview.innerHTML = html;
         }
-
+        
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
@@ -389,31 +405,31 @@
             
             return stripCanvas.toDataURL('image/png');
         }
-
+        
         function downloadStrip() {
             const link = document.createElement('a');
             link.download = 'miracles.png';
             link.href = createPhotoStrip();
             link.click();
         }
-
+        
         async function sendEmail() {
             const email = document.getElementById('email-input').value;
             if (!email) {
                 alert('Please enter a valid email address');
                 return;
             }
-
+        
             const formData = new FormData();
             formData.append('email', email);
             formData.append('photoStrip', createPhotoStrip());
-
+        
             try {
                 const response = await fetch('/send-email', {
                     method: 'POST',
                     body: formData
                 });
-
+        
                 if (response.ok) {
                     alert('Photos sent successfully!');
                 } else {
@@ -424,7 +440,7 @@
                 console.error('Error:', error);
             }
         }
-
+        
         function resetPhotos() {
             photos = [];
             document.getElementById('preview-strip').style.display = 'none';
@@ -433,7 +449,7 @@
             document.getElementById('startButton').style.display = 'inline-block';
             document.getElementById('email-form').style.display = 'none';
         }
-
+        
         function resetAll() {
             resetPhotos();
             setFilter('none');
