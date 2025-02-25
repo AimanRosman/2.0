@@ -11,19 +11,19 @@
             box-sizing: border-box;
             font-family: "Gothic", "Crimson Text", serif;
         }
-        
+
         body {
             background-color: #1a1a1a;
             min-height: 100vh;
             padding: 20px;
             color: #ffffff;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -32,7 +32,7 @@
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
-        
+
         .title {
             color: #c41e3a;
             font-size: 28px;
@@ -40,24 +40,22 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-        
+
         .main-content {
             display: flex;
             gap: 20px;
             align-items: flex-start;
-            flex-direction: row; 
         }
-        
+
         .camera-section {
-            flex: 1; 
+            flex: 1;
         }
-        
+
         .preview-section {
-            width: 300px; 
-            flex-shrink: 0; 
-            margin-left: auto; 
+            width: 300px;
+            flex-shrink: 0;
         }
-        
+
         .camera-container {
             position: relative;
             width: 100%;
@@ -68,14 +66,13 @@
             overflow: hidden;
             margin-bottom: 20px;
         }
-        
+
         #video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1);
         }
-        
+
         .button-container {
             display: flex;
             gap: 10px;
@@ -83,7 +80,7 @@
             flex-wrap: wrap;
             margin-bottom: 20px;
         }
-        
+
         .button {
             padding: 10px 20px;
             border-radius: 4px;
@@ -96,34 +93,47 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
+
         .button:hover {
             background: #c41e3a;
             color: #1a1a1a;
         }
-        
+
         .button.active {
             background: #c41e3a;
             color: #1a1a1a;
         }
-        
+
         .preview-strip {
-            background: #333;
-            padding: 20px;
+            background: white;
             border-radius: 4px;
             display: none;
+            padding: 10px;
+            color: #000;
+            text-align: center;
         }
-        
+
         .preview-strip img {
             width: 100%;
             margin-bottom: 10px;
-            border: 2px solid #c41e3a;
+            border: none;
+            background-color: #f0f0f0;
         }
-        
-        .preview-strip img:last-child {
-            margin-bottom: 0;
+
+        .preview-strip img:last-of-type {
+            margin-bottom: 15px;
         }
-        
+
+        .preview-strip .timestamp {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .preview-strip .copyright {
+            font-size: 12px;
+            color: #777;
+        }
+
         .countdown-overlay {
             position: absolute;
             top: 0;
@@ -139,13 +149,13 @@
             font-weight: bold;
             display: none;
         }
-        
+
         .email-form {
             display: none;
             margin-top: 20px;
             text-align: center;
         }
-        
+
         .email-input {
             padding: 10px 20px;
             border-radius: 4px;
@@ -155,36 +165,18 @@
             width: 100%;
             margin-bottom: 10px;
         }
-        
+
         .email-input::placeholder {
             color: #666;
         }
-        
-        @media (max-width: 768px) {
+
+        @media (max-width: 900px) {
             .main-content {
-                flex-direction: column; 
+                flex-direction: column;
             }
-        
+
             .preview-section {
-                width: 100%; 
-                margin-left: 0; 
-            }
-        
-            .camera-container {
-                aspect-ratio: 3/4;
-            }
-        
-            .button {
-                padding: 15px 25px; 
-                font-size: 16px; 
-            }
-        
-            .title {
-                font-size: 24px;
-            }
-        
-            .preview-strip img {
-                width: 100%; 
+                width: 100%;
             }
         }
     </style>
@@ -258,18 +250,29 @@
         function setFilter(filter) {
             currentFilter = filter;
             video.style.filter = filter;
+            
+            // Update active button
             document.querySelectorAll('#filters .button').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent === filterNames[filter]);
+                btn.classList.remove('active');
             });
+            
+            // Find the button with the matching filter and make it active
+            const filterNames = {
+                'none': 'No Filter',
+                'grayscale(1)': 'Grayscale',
+                'contrast(1.4) brightness(0.8)': 'Dark',
+                'contrast(1.2) sepia(0.3) brightness(0.7)': 'Vintage',
+                'blur(1px) contrast(1.2) brightness(0.8)': 'Ethereal'
+            };
+            
+            const buttons = document.querySelectorAll('#filters .button');
+            for (let btn of buttons) {
+                if (btn.textContent === filterNames[filter]) {
+                    btn.classList.add('active');
+                    break;
+                }
+            }
         }
-
-        const filterNames = {
-            'none': 'No Filter',
-            'grayscale(1)': 'Grayscale',
-            'contrast(1.4) brightness(0.8)': 'Dark',
-            'contrast(1.2) sepia(0.3) brightness(0.7)': 'Vintage',
-            'blur(1px) contrast(1.2) brightness(0.8)': 'Ethereal'
-        };
 
         async function countdown() {
             const overlay = document.getElementById('countdown-overlay');
@@ -303,46 +306,70 @@
         }
 
         function capturePhoto() {
-            const aspectRatio = video.videoWidth / video.videoHeight;
-            canvas.width = 800; 
-            canvas.height = Math.round(800 / aspectRatio); 
-           
-            ctx.translate(canvas.width, 0); 
-            ctx.scale(-1, 1); 
-
+            // Set canvas size to maintain a consistent aspect ratio
+            canvas.width = 400;  // Fixed width
+            canvas.height = 300;  // Fixed height (4:3 aspect ratio)
+            
             ctx.filter = currentFilter;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
             const photo = canvas.toDataURL('image/png');
             photos.push(photo);
             updatePreview();
-
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
 
         function updatePreview() {
             const preview = document.getElementById('preview-strip');
             preview.style.display = 'block';
-            preview.innerHTML = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
+            
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-US');
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            // Generate HTML for the photo strip
+            let html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
+            
+            // Add timestamp and copyright
+            html += `<div class="timestamp">Gothic Photo Booth ${dateString} ${timeString}</div>`;
+            html += `<div class="copyright">© ${now.getFullYear()} Gothic Booth</div>`;
+            
+            preview.innerHTML = html;
         }
 
         function createPhotoStrip() {
             const stripCanvas = document.createElement('canvas');
             const stripCtx = stripCanvas.getContext('2d');
-            const photoWidth = 800;
-            const photoHeight = 600;
+            const photoWidth = 400;
+            const photoHeight = 300;
+            const padding = 20;
+            const footerHeight = 60;
             
-            stripCanvas.width = photoWidth + 40;
-            stripCanvas.height = (photoHeight * 4) + 80;
+            stripCanvas.width = photoWidth + (padding * 2);
+            stripCanvas.height = (photoHeight * 4) + (padding * 5) + footerHeight;
             
-            stripCtx.fillStyle = '#1a1a1a';
+            // Fill with white background
+            stripCtx.fillStyle = '#ffffff';
             stripCtx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
             
+            // Draw each photo
             photos.forEach((photo, index) => {
                 const img = new Image();
                 img.src = photo;
-                stripCtx.drawImage(img, 20, 20 + (index * (photoHeight + 20)), photoWidth, photoHeight);
+                stripCtx.drawImage(img, padding, padding + (index * (photoHeight + padding)), photoWidth, photoHeight);
             });
+            
+            // Add timestamp and copyright
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-US');
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            stripCtx.fillStyle = '#000000';
+            stripCtx.font = '16px Arial';
+            stripCtx.textAlign = 'center';
+            stripCtx.fillText(`Gothic Photo Booth ${dateString} ${timeString}`, stripCanvas.width / 2, stripCanvas.height - 30);
+            
+            stripCtx.fillStyle = '#777777';
+            stripCtx.font = '12px Arial';
+            stripCtx.fillText(`© ${now.getFullYear()} Gothic Booth`, stripCanvas.width / 2, stripCanvas.height - 10);
             
             return stripCanvas.toDataURL('image/png');
         }
@@ -361,11 +388,13 @@
                 return;
             }
 
+            // Create form data with the photo strip
             const formData = new FormData();
             formData.append('email', email);
             formData.append('photoStrip', createPhotoStrip());
 
             try {
+                // You'll need to set up a server endpoint to handle this request
                 const response = await fetch('/send-email', {
                     method: 'POST',
                     body: formData
@@ -396,6 +425,7 @@
             setFilter('none');
         }
 
+        // Initialize camera when page loads
         initCamera();
     </script>
 </body>
