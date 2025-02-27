@@ -83,29 +83,38 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5); 
+            border: 1px solid #c41e3a; 
+            padding: 15px;
         }
 
         .button {
             padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 0; 
             border: 2px solid #c41e3a;
-            background: #1a1a1a;
+            background: #000000; 
             color: #c41e3a;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px; 
+            font-family: "Gothic", "Crimson Text", serif;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.4); 
         }
-
+        
         .button:hover {
             background: #c41e3a;
-            color: #1a1a1a;
+            color: #000000;
+            box-shadow: 0 0 10px rgba(196, 30, 58, 0.8); 
+            text-shadow: 0 0 3px #000000;
         }
-
+        
         .button.active {
             background: #c41e3a;
-            color: #1a1a1a;
+            color: #000000;
+            border: 2px solid #ffffff; 
+            box-shadow: 0 0 10px rgba(196, 30, 58, 0.8); 
         }
 
         .preview-strip {
@@ -162,16 +171,21 @@
 
         .email-input {
             padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 0; 
             border: 2px solid #c41e3a;
-            background: #333;
+            background: #000000; 
             color: #ffffff;
             width: 100%;
             margin-bottom: 10px;
+            font-family: "Gothic", "Crimson Text", serif;
+            letter-spacing: 1px;
         }
+
 
         .email-input::placeholder {
             color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         @media (max-width: 900px) {
