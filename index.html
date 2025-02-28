@@ -379,7 +379,7 @@
             let html = photos.map(photo => `<img src="${photo}" alt="Photo">`).join('');
             
             html += `<div class="timestamp">Mika's Photo Booth ${dateString} ${timeString}</div>`;
-            html += `<div class="copyright">© ${now.getFullYear()} Batman Sdn Bhd</div>`;
+            html += `<div class="copyright">© ${now.getFullYear()}  MrDumDum</div>`;
             
             preview.innerHTML = html;
         }
@@ -415,7 +415,7 @@
             
             stripCtx.fillStyle = '#777777';
             stripCtx.font = '12px Arial';
-            stripCtx.fillText(`© ${now.getFullYear()} Batman Sdn Bhd`, stripCanvas.width / 2, stripCanvas.height - 10);
+            stripCtx.fillText(`© ${now.getFullYear()} MrDumDum`, stripCanvas.width / 2, stripCanvas.height - 10);
             
             return stripCanvas.toDataURL('image/png');
         }
